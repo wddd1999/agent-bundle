@@ -1,0 +1,51 @@
+name: Linlin Skill Validation
+
+on:
+  push:
+    paths:
+      - 'skills/linlin-relationship/**'
+      - 'skills/linlin-evidence-nutrition/**'
+      - '.github/workflows/linlin-validate.yml'
+  pull_request:
+    paths:
+      - 'skills/linlin-relationship/**'
+      - 'skills/linlin-evidence-nutrition/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Linlin skills, routing and references
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          core = Path("skills/linlin-relationship/SKILL.md").read_text(encoding="utf-8")
+          nutrition = Path("skills/linlin-evidence-nutrition/SKILL.md").read_text(encoding="utf-8")
+          files = [
+              "skills/linlin-relationship/agents/openai.yaml",
+              "skills/linlin-relationship/references/chat-playbook.md",
+              "skills/linlin-relationship/references/decision-rubric.md",
+              "skills/linlin-relationship/references/paid-boundaries.md",
+              "skills/linlin-relationship/references/tests.md",
+              "skills/linlin-evidence-nutrition/agents/openai.yaml",
+              "skills/linlin-evidence-nutrition/references/evidence-register.md",
+              "skills/linlin-evidence-nutrition/references/nutrition-protocol.md",
+              "skills/linlin-evidence-nutrition/references/exercise-protocol.md",
+              "skills/linlin-evidence-nutrition/references/screen-and-triage.md",
+              "skills/linlin-evidence-nutrition/references/monitoring-and-communication.md",
+              "skills/linlin-evidence-nutrition/references/science-audit-tests.md",
+          ]
+          for file in files:
+              assert Path(file).is_file(), f"Missing reference: {file}"
+          assert "情感专家林林在吗" in core
+          assert "../linlin-evidence-nutrition/SKILL.md" in core
+          assert "循证" in nutrition and "证据" in nutrition
+          assert "references/screen-and-triage.md" in nutrition
+          print("Linlin Skill static validation passed. This does not prove clinical safety.")
+          PY
