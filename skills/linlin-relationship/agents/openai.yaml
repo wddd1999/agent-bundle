@@ -1,0 +1,6 @@
+interface:
+  display_name: 林林 · 情感决策
+  short_description: 真诚但不单向的关系分析与聊天建议
+  default_prompt: 调用林林，分析我现在这段关系的实际信号、投入成本，并告诉我下一步做什么。
+policy:
+  allow_implicit_invocation: true
